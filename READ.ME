@@ -1,0 +1,95 @@
+ 
+		JWARN - ATARI JAGUAR WAIT STATES WARNING GENERATOR
+
+
+	Jwarn is a little tool which allows you to find the places in your
+code where the Jaguar GPU or DSP will insert wait states. Please see the
+section 'Writing Fast GPU Programs' in the Atari Jaguar Manual.
+
+Jwarn will check for the following cases:
+
+ *	RULE 1:
+ *	An instruction reads a register containing the result o the previous
+ *	instruction, one tick of wait is incurred until the previous 
+ *	operation completes.
+
+ *	RULE 2:
+ *	An instruction uses the flags from the prvious instruction, one tick
+ *	of wait is incurred until the previous operation completes.
+
+ *	RULE 3:
+ *	An ALU result, memory load value or divide result has to be written 
+ *	back and neither instruction about to be executed matches, one tick
+ *	of wait is incurred to let the data be written.
+
+ *	RULE 4:
+ *	Two values are to be written back at once, one tick of wait is
+ *	incurred.
+
+ *	RULE 5:
+ *	An instr. attempts to use the result of a divide inst. before it's
+ *	ready. Wait states are inserted until the divide unit completes the
+ *	divide, between one and sixteen wait states can be incurred.
+ *
+ *	RULE 6:
+ *	A dividie instr. is about to be executed and the previous one has not
+ *	completed, between one and sixteen wait states can be incurred.
+
+ *	RULE 7:
+ *	An instr. reads a register which is awaiting data from an incomplete
+ *	memory read, this will be no more than one tick from internal memory, 
+ *	but several ticks from external memory.
+
+ *	RULE 8:
+ *	A load or store instr. is about tob be executed and the memory 
+ *	interface has not completed the transfer for the previous ones (one
+ *	internal load/store or two external loads/stores can be pending 
+ *	without holding up instruction flow).
+
+ *	RULE 9:
+ *	After a store instr. with indexed addressing mode
+
+ *	RULE 10:
+ *	After a jump or jr (three ticks if executing out of internal memory).
+
+ #	WARNING 1:
+ #
+ #	Situations like the following will cause problems:
+ #	Loop: 	...
+ #		...
+ #		jr 	cs, Loop
+ #		addq	#1, R0
+ #		moveq	#0, R0
+ #
+ #	After getting out of the loop, 0 will NOT be moved into R0. Instead,
+ #	R0 will still contain the last result of the previous add.
+ #	Jwarn will warn you about the occurance of those situations.
+
+
+
+				HOW TO USE JWARN
+
+Jwarn takes a GASM listing file as its input and and writes the warnings to
+standard output. The listing file can be either specified on the command line
+or can come from standard input. Jwarn knows the folloing options:
+
+	-C		allows you to spicify which chip is used. The options 
+			are -CGpu or -CDsp. If no chip is specified, the GPU
+			is assumed.
+
+	+r x y z ...	allows you to just check for rules x, y, and z. See
+			above for a description of the rules (1..10).
+
+	-r x y z ...	allows you to check for all rules except x, y and z.
+
+	-ofilename	specifies an output file name. Instead of writing to
+			standard output, jwarn will write into the specified
+			file.
+
+	help		prints a short message.
+
+Examples:
+	jwarn tst.lst			; check tst.lst
+	jwarn +r 2 3 4 tst.lst		; check rules 2,3 and 4
+	jwarn -CDsp -r 10 tst.lst	; DSP Code, check all but rule 10
+	jwarn -otst.wrn tst.lst		; write output to tst.wrn

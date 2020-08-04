@@ -1,0 +1,7 @@
+samples/
+VS2015/
+VS2019/.vs/
+VS2019/x64/
+VS2019/Win32/
+VS2019/*.db
+VS2019/*.user
