@@ -1,0 +1,26 @@
+#
+#	makefile for jwarn
+# 
+CFLAGS = -w -b0 -r0
+
+.c.o:
+	lc $(CFLAGS) -o$@ $<
+
+.s.o:
+	mas -us $*.s
+
+OBJ    =  jwarn.o table.o rules.o
+LOBJ   =  cs.o+jwarn.o+table.o+rules.o
+LIBS   =  lcs.lib
+OUTPUT =  jwarn.ttp
+
+
+jwarn.ttp:	$(OBJ)
+		clink ADDSYM DRISYM TO $(OUTPUT) FROM $(LOBJ) LIB $(LIBS)
+
+clean:
+	rm *.o *.ttp
+
+jwarn.o: jwarn.c table.h
+table.o: table.c table.h
+rules.o: rules.c table.h message.h
