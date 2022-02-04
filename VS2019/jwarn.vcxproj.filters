@@ -35,6 +35,9 @@
     <ClInclude Include="..\TABLE.H">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\portab.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\READ.ME" />

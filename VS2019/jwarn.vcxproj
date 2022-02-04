@@ -169,6 +169,7 @@
   <ItemGroup>
     <ClInclude Include="..\JWARN.H" />
     <ClInclude Include="..\MESSAGE.H" />
+    <ClInclude Include="..\portab.h" />
     <ClInclude Include="..\TABLE.H" />
   </ItemGroup>
   <ItemGroup>

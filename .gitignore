@@ -6,3 +6,6 @@ VS2019/x64/
 VS2019/Win32/
 VS2019/*.db
 VS2019/*.user
+*.o
+jwarn.exe
+jwarn
