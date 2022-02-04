@@ -23,7 +23,7 @@
 /* INCLUDE FILES
  * ===============================================
  */
-#include <portab.h>
+#include "portab.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "table.h"

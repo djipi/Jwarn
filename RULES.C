@@ -8,7 +8,7 @@
  *
  *	Copyright 1993 ATARI Corp.
  */
-#include <portab.h>
+#include "portab.h"
 #include <stdio.h>
 #include "table.h"
 #include "message.h"
@@ -29,18 +29,17 @@ EXTERN OPCODE_TABLE 	*OpCodeTable;
  *	All rules fct. def.
  */
 
-WORD	rule_01(ofp, op, ct);
-WORD	rule_02(ofp, op, ct);
-WORD	rule_03(ofp, op, ct);
-WORD	rule_04(ofp, op, ct);
-WORD	rule_05_06(ofp, op, ct);
+WORD rule_01(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
+WORD rule_02(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
+WORD rule_03(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
+WORD rule_04(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
+WORD rule_05_06(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
 //WORD	rule_06();
-WORD	rule_07(ofp, op, ct);
-WORD	rule_08(ofp, op, ct);
-WORD	rule_09(ofp, op, ct);
-WORD	rule_10(ofp, op, ct);
-
-WORD	warn_01(ofp, op, ct);
+WORD rule_07(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
+WORD rule_08(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
+WORD rule_09(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
+WORD rule_10(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
+WORD warn_01(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
 
 
 /*

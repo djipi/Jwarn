@@ -1,27 +1,19 @@
 #
 #	makefile for jwarn
-#   Note: to be used in an Atari 16/32 computers environement
 # 
-CFLAGS = -w -b0 -r0
+CFLAGS = -O3 -c
 
 .c.o:
-	lc $(CFLAGS) -o$@ $<
+	gcc $(CFLAGS) -o$@ $<
 
-.s.o:
-	mas -us $*.s
+OBJ    =  JWARN.o TABLE.o RULES.o
 
-OBJ    =  jwarn.o table.o rules.o
-LOBJ   =  cs.o+jwarn.o+table.o+rules.o
-LIBS   =  lcs.lib
-OUTPUT =  jwarn.ttp
-
-
-jwarn.ttp:	$(OBJ)
-		clink ADDSYM DRISYM TO $(OUTPUT) FROM $(LOBJ) LIB $(LIBS)
+jwarn:	$(OBJ)
+		gcc -o$@ $(OBJ)
 
 clean:
-	rm *.o *.ttp
+	rm *.o jwarn
 
-jwarn.o: jwarn.c table.h
-table.o: table.c table.h
-rules.o: rules.c table.h message.h
+jwarn.o: JWARN.c TABLE.h
+table.o: TABLE.c TABLE.h
+rules.o: RULES.c TABLE.h MESSAGE.h
