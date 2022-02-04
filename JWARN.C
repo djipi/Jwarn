@@ -4,25 +4,33 @@
  *	Copyright 1993 ATARI Corp.
  *
  *	Written in July 1993 by C. Gee and H.-M. Krober
+ * 
+ * Windows version in August 2020 by J-P Mari
+ * Non GASM listing format support added in February 2022 by J-P Mari
+ * 
  */
 
-#include <portab.h>
+#include "portab.h"
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <errno.h>
 #include "jwarn.h"
 #include "table.h"
+
+#define VERSION	"1.1"
 
 EXTERN OPCODE_TABLE *OpCodeTable;     /* from table.c		*/ 
 EXTERN OPCODE_TABLE DSPOpCodeTable[]; /* from table.c		*/ 
 EXTERN OPCODE_TABLE GPUOpCodeTable[]; /* from table.c		*/ 
 
-EXTERN WORD WarnAll(ofp);
-EXTERN WORD WarnRules(ofp, rules);
+EXTERN WORD WarnAll(FILE *ofp);
+EXTERN WORD WarnRules(FILE *ofp, WORD *rules);
 
-#ifndef _MSC_VER
-EXTERN WORD errno;		/* for perror()			*/
-#endif
+//#ifndef _MSC_VER
+//EXTERN WORD errno;		/* for perror()			*/
+//#endif
 GLOBAL BYTE *name  = "jwarn";	/* porgram name			*/
 MLOCAL FILE *ifp;		/* input file ptr		*/
 MLOCAL FILE *ofp;		/* output file ptr		*/
@@ -39,17 +47,17 @@ MLOCAL WORD rulesb[MAXRULES];	/* copy buffer for rules	*/
  *	function declararions
  */
 
-WORD	get_cpu(argc, argv);
-WORD	get_input(argc, argv);
-WORD	get_rules(argc, argv);
-BYTE	*get_output(argc, argv);
-VOID	get_lines(ifp, ofp);
+WORD	get_cpu(WORD argc, BYTE **argv);
+WORD	get_input(WORD argc, BYTE **argv);
+WORD	get_rules(WORD argc, BYTE **argv);
+BYTE	*get_output(WORD argc, BYTE **argv);
+VOID	get_lines(FILE *ifp, FILE *ofp);
 
 
 /*	--------------------------------------------------------
  *	main(): C'mon to the Joyride....
  *
- *	Jwarn takes a listing file from gasm as its input and generates a file
+ *	Jwarn takes a listing file from gasm, rmac or vasm, as its input and generates a file
  *	of warnings where wait states are going to occure.
  *
  * 	Usage: 
@@ -64,7 +72,7 @@ VOID	get_lines(ifp, ofp);
  *			jwarn +r 2 7 8 tst.lst ; show only type 2 7 8
  */
 
-	VOID
+	int
 main(argc, argv)
 	WORD	argc;
 	BYTE	*argv[];
@@ -75,9 +83,10 @@ main(argc, argv)
 	BYTE	*output = NULL;
 
 	if ((argc < 2) || (strcmp(argv[1], "help") == 0)) {
-		fprintf(stderr, "\njwarn - Atari Jaguar Wait State Warning Generator\n");
-		fprintf(stderr, "usage: jwarn [-C{Gpu|Dsp}] [{+|-}r {1..10} {1..10}..] [-ooutput] [input files]\n");
-		fprintf(stderr, "GASM listing format is required as input.\n\n");
+		fprintf(stderr, "\njwarn %s - Atari Jaguar Wait State Warning Generator\n", VERSION);
+		fprintf(stderr, "usage: jwarn [-C{Gpu|Dsp}] [{+|-}r {1..10} {1..10}..] [-ooutput] [input files]\n\n");
+		fprintf(stderr, "If no input and/or output file is specified stdin / stdout are used.\n");
+		fprintf(stderr, "GASM, Rmac or Vasm listing format is required as input.\n\n");
 		exit(0);
 	} 
 
@@ -239,7 +248,7 @@ get_rules(argc, argv)
 					  for (i = k+1, j=0; i < argc; i++, j++) {
 					  	if (!(isdigit(argv[i][0])))
 							break;
-						rule = atoi(&argv[i][0]);
+						rule = (WORD)atoi(&argv[i][0]);
 						if ((rule < 1) || (rule > 10)) {
 							err = 2;
 							break;
@@ -306,9 +315,11 @@ get_lines(ifp, ofp)
 {
 	ULONG	addr;	/* address field in the listing file 	*/
 	UWORD	code;	/* code field in the listing file    	*/
+	ULONG	line;	/* line field in the listing file (used only for reading) */
 	WORD	n;	/* number of fileds in the current line	*/
 	LONG	lnr;	/* line number 				*/
 	LONG	lines = 0;	/* number of lines */
+	BOOL	readrisc = 0;
 
 	InitCodeTable(); /* init the code table		 	*/
 	lnr = 1L;	 /* 1st line				*/
@@ -316,10 +327,48 @@ get_lines(ifp, ofp)
 	 *	step 1: read all lines into buffer
 	 */
 	while (fgets(lbuf, 1024, ifp) != NULL) { /* go through all lines */
-			/* get address and code field from current line..*/
+		/* get address and code field from current line in GASM format..*/
 		n = sscanf(lbuf, "@'%lX %hX\n", &addr, &code);
-		
-		if ((n >= 2) && (lbuf[11] != ' ')) {
+		if (!n)
+		{
+			/* look for the .gpu or .dsp to try for non GASM format (such as Rmac, or Vasm)*/
+			if (strstr(lbuf, ".gpu") || strstr(lbuf, ".dsp"))
+			{
+				readrisc = 1;
+			}
+			else
+			{
+				if (strstr(lbuf, ".68000"))
+				{
+					readrisc = 0;
+				}
+			}
+		}
+
+		if (!n && readrisc)
+		{
+			/* get address and code field from current line in non GASM format (such as Rmac)..*/
+			n = sscanf(lbuf, "%lu %lX %hX\n", &line, &addr, &code);
+			if (!n)
+			{
+				/* get address and code field from current line in non GASM format (such as Vasm)..*/
+				n = sscanf(lbuf, " S%u:%lX: %hX\n", &line, &addr, &code);
+				if (n == 3)
+				{
+					/* transform the text to remove the extra spaces in the opcode */
+					WORD i, j;
+					i = j = (WORD)strlen(lbuf);
+					do
+					{
+						while (lbuf[--i] != ' ');
+						memcpy(&lbuf[i], &lbuf[i + 1], (j - i));
+					} while (lbuf[i - 1] != ':');
+					n = sscanf(lbuf, " S%u:%lX:%hX\n", &line, &addr, &code);
+				}
+			}
+		}
+
+		if ((n >= 2) /* && (lbuf[11] != ' ')*/) {
 			lines++;
 			/* if addr & code present, push them onto table */
 			if (PushData(lnr, code) == FALSE) {
