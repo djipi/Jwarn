@@ -6,7 +6,9 @@
  *	Written in July 1993 by C. Gee and H.-M. Krober
  * 
  * Windows version in August 2020 by J-P Mari
+ * Added a version number, and a minor addition for the usage description, in February 2022 by J-P Mari
  * Non GASM listing format support added in February 2022 by J-P Mari
+ * Error check for unknown opcode added in February 2022 by J-P Mari
  * 
  */
 
@@ -19,7 +21,7 @@
 #include "jwarn.h"
 #include "table.h"
 
-#define VERSION	"1.1"
+#define VERSION	"1.2"
 
 EXTERN OPCODE_TABLE *OpCodeTable;     /* from table.c		*/ 
 EXTERN OPCODE_TABLE DSPOpCodeTable[]; /* from table.c		*/ 
@@ -47,11 +49,11 @@ MLOCAL WORD rulesb[MAXRULES];	/* copy buffer for rules	*/
  *	function declararions
  */
 
-WORD	get_cpu(WORD argc, BYTE **argv);
-WORD	get_input(WORD argc, BYTE **argv);
-WORD	get_rules(WORD argc, BYTE **argv);
-BYTE	*get_output(WORD argc, BYTE **argv);
-VOID	get_lines(FILE *ifp, FILE *ofp);
+WORD get_cpu(WORD argc, BYTE **argv);
+WORD get_input(WORD argc, BYTE **argv);
+WORD get_rules(WORD argc, BYTE **argv);
+BYTE *get_output(WORD argc, BYTE **argv);
+VOID get_lines(FILE *ifp, FILE *ofp);
 
 
 /*	--------------------------------------------------------
@@ -87,70 +89,72 @@ main(argc, argv)
 		fprintf(stderr, "usage: jwarn [-C{Gpu|Dsp}] [{+|-}r {1..10} {1..10}..] [-ooutput] [input files]\n\n");
 		fprintf(stderr, "If no input and/or output file is specified stdin / stdout are used.\n");
 		fprintf(stderr, "GASM, Rmac or Vasm listing format is required as input.\n\n");
-		exit(0);
+		exit(1);
 	} 
-
-	/* 
-	 *	Get the CPU type (Gpu or Dsp)
-	 */
-	if ((cpu = get_cpu(argc, argv)) == DSP_CODE)
-		OpCodeTable = DSPOpCodeTable;
-	else
-		OpCodeTable = GPUOpCodeTable;
-	
-	/*
-	 *	Get the output file name
-	 */
-	output = get_output(argc, argv);
-
-	/*
-	 *	Get the rules
-	 */
-	rules[0] = (WORD)-1;
-	get_rules(argc, argv);
-
-	/*
-	 *	Get input file names
-	 */
-	input = get_input(argc, argv);
-
-
-	/*
-	 *	If output not stdout, open file for writing
-	 */
-	if (output != NULL) {
-		if ((ofp = fopen(output, "w")) == NULL) {
-			perror(name);
-			exit(errno);
-		}
-	} else 
-		ofp = stdout;
-
-	/*
-	 *	If  input is stdin, process the lines...
-	 */
-	if (input == 0) {	/* stdin */
-		ifp = stdin;
-		get_lines(ifp, ofp);
-	} 
-	/*
-	 *	...else, open the files first and print the file name
-	 */
 	else {
-		for (i = input; i < argc; i++) {
-			if ((ifp = fopen(argv[i], "r")) == NULL) {
+		/*
+		 *	Get the CPU type (Gpu or Dsp)
+		 */
+		if ((cpu = get_cpu(argc, argv)) == DSP_CODE)
+			OpCodeTable = DSPOpCodeTable;
+		else
+			OpCodeTable = GPUOpCodeTable;
+
+		/*
+		 *	Get the output file name
+		 */
+		output = get_output(argc, argv);
+
+		/*
+		 *	Get the rules
+		 */
+		rules[0] = (WORD)-1;
+		get_rules(argc, argv);
+
+		/*
+		 *	Get input file names
+		 */
+		input = get_input(argc, argv);
+
+
+		/*
+		 *	If output not stdout, open file for writing
+		 */
+		if (output != NULL) {
+			if ((ofp = fopen(output, "w")) == NULL) {
 				perror(name);
 				exit(errno);
 			}
-			fprintf(ofp, "\nFILE: %s\n", argv[i]);
-			get_lines(ifp, ofp);	/* process the lines */
 		}
+		else
+			ofp = stdout;
+
+		/*
+		 *	If  input is stdin, process the lines...
+		 */
+		if (input == 0) {	/* stdin */
+			ifp = stdin;
+			get_lines(ifp, ofp);
+		}
+		/*
+		 *	...else, open the files first and print the file name
+		 */
+		else {
+			for (i = input; i < argc; i++) {
+				if ((ifp = fopen(argv[i], "r")) == NULL) {
+					perror(name);
+					exit(errno);
+				}
+				fprintf(ofp, "\nFILE: %s\n", argv[i]);
+				get_lines(ifp, ofp);	/* process the lines */
+			}
+		}
+
+		fclose(ifp);
+		fclose(ofp);
+
+		exit(0);
 	}
-
-	fclose(ifp);
-	fclose(ofp);
-
-	exit(0);
 }
 
 /*
@@ -328,6 +332,7 @@ get_lines(ifp, ofp)
 	 */
 	while (fgets(lbuf, 1024, ifp) != NULL) { /* go through all lines */
 		/* get address and code field from current line in GASM format..*/
+		addr = code = 0;
 		n = sscanf(lbuf, "@'%lX %hX\n", &addr, &code);
 		if (!n)
 		{
@@ -348,10 +353,12 @@ get_lines(ifp, ofp)
 		if (!n && readrisc)
 		{
 			/* get address and code field from current line in non GASM format (such as Rmac)..*/
+			line = addr = code = 0;
 			n = sscanf(lbuf, "%lu %lX %hX\n", &line, &addr, &code);
 			if (!n)
 			{
 				/* get address and code field from current line in non GASM format (such as Vasm)..*/
+				line = addr = code = 0;
 				n = sscanf(lbuf, " S%u:%lX: %hX\n", &line, &addr, &code);
 				if (n == 3)
 				{
@@ -363,20 +370,34 @@ get_lines(ifp, ofp)
 						while (lbuf[--i] != ' ');
 						memcpy(&lbuf[i], &lbuf[i + 1], (j - i));
 					} while (lbuf[i - 1] != ':');
+					line = addr = code = 0;
 					n = sscanf(lbuf, " S%u:%lX:%hX\n", &line, &addr, &code);
 				}
 			}
 		}
 
+		/* information validity check */
 		if ((n >= 2) /* && (lbuf[11] != ' ')*/) {
-			lines++;
-			/* if addr & code present, push them onto table */
-			if (PushData(lnr, code) == FALSE) {
-				fprintf(stderr, "%s: Out of memory.\n", name);
+			/* opcode error check */
+			if (code) {
+				lines++;
+				/* if addr & code present, push them onto table */
+				if (PushData(lnr, code) == FALSE) {
+					fprintf(stderr, "%s: Out of memory.\n", name);
+					fclose(ifp);
+					fclose(ofp);
+					FreeCodeTable();
+					exit(2);
+				}
+			}
+			else
+			{
+				/* unknown opcode */
+				fprintf(stderr, "Unknown opcode found in line %u at the 0x%lx address.\n", lnr, addr);
 				fclose(ifp);
 				fclose(ofp);
 				FreeCodeTable();
-				exit(1);
+				exit(4);
 			}
 		}
 		lnr++;
