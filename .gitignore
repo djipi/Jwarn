@@ -1,10 +1,9 @@
 samples/
 Archives/
-VS2019/.vs/
-VS2019/x64/
-VS2019/Win32/
-VS2019/*.db
-VS2019/*.user
+.vs/
+x64/
+Win32/
+VS2022/*.vcxproj.user
 *.o
 jwarn.exe
 jwarn
