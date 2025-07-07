@@ -14,7 +14,7 @@
 #include "message.h"
 
 #ifndef _WFCTP
-typedef WORD (*WFCTP)();	/* pointer to function which returns a word */
+typedef WORD (*WFCTP)(FILE* ofp, OPCODE_TABLE* op, TABLE* ct);	/* pointer to function which returns a word */
 #endif
 
 
@@ -48,7 +48,7 @@ WORD rule_12(FILE* ofp, OPCODE_TABLE* op, TABLE* ct);
  *	Array of rules so we can jump there using an index
  */
 
-WFCTP	rules_fct[] = {
+WFCTP rules_fct[] = {
 	rule_01,
 	rule_02,
 	rule_03,
@@ -71,9 +71,7 @@ WORD	JUST_TEST;	/* Global Flag, just check for a rule, don't print */
  *	Check all rules...
  */
 
-	WORD
-WarnAll(ofp)
-	FILE	*ofp;	/* output file ptr	*/
+WORD WarnAll(FILE* ofp)
 {
 	REG TABLE	*ct;
 	WORD		state = FALSE;	
@@ -98,10 +96,7 @@ WarnAll(ofp)
  *	Just go through the specified rules
  */
 
-	WORD
-WarnRules(ofp, rules)
-	FILE	*ofp;		/* output file ptr 	*/
-	WORD	rules[];	/* rules		*/
+WORD WarnRules(FILE* ofp, WORD rules[])
 {
 	REG TABLE	*ct;
 	WORD		state = FALSE;	
@@ -127,11 +122,7 @@ WarnRules(ofp, rules)
  *	Returns TRUE, if rule 1 applies and FALSE otherwise.
  */
 
-	WORD
-rule_01(ofp, op, ct)
-	FILE		*ofp;	/* output file ptr	*/
-	OPCODE_TABLE	*op;	/* opcode table		*/
-	TABLE 		*ct;	/* ptr to current line	*/
+WORD rule_01(FILE* ofp, OPCODE_TABLE* op, TABLE* ct)
 {
 	TABLE		*cz;
 	OPCODE_TABLE	*x, *y, *z;
@@ -175,11 +166,7 @@ rule_01(ofp, op, ct)
  *	Returns TRUE, if rule 2 applies and FALSE otherwise.
  */
 
-	WORD
-rule_02(ofp, op, ct)
-	FILE		*ofp;	/* output file ptr	*/
-	OPCODE_TABLE	*op;	/* opcode table		*/
-	TABLE 		*ct;	/* ptr to current line	*/
+WORD rule_02(FILE* ofp, OPCODE_TABLE* op, TABLE* ct)
 {
 	OPCODE_TABLE	*x, *y;
 
@@ -219,12 +206,8 @@ rule_02(ofp, op, ct)
  *
  *	Returns TRUE, if rule 3 applies and FALSE otherwise.
  */
-	WORD
-rule_03(ofp, op, ct)
-	FILE		*ofp;	/* output file ptr	*/
-	OPCODE_TABLE	*op;	/* opcode table		*/
-	TABLE 		*ct;	/* ptr to current line	*/
 
+WORD rule_03(FILE* ofp, OPCODE_TABLE* op, TABLE* ct)
 {
 	OPCODE_TABLE	*x, *y, *z;
 	TABLE		*cx, *cy, *cz;
@@ -316,11 +299,7 @@ rule_03(ofp, op, ct)
  *	Returns TRUE, if rule 4 applies and FALSE otherwise.
  */
 
-	WORD
-rule_04(ofp, op, ct)
-	FILE		*ofp;	/* output file ptr	*/
-	OPCODE_TABLE	*op;	/* opcode table		*/
-	TABLE 		*ct;	/* ptr to current line	*/
+WORD rule_04(FILE* ofp, OPCODE_TABLE* op, TABLE* ct)
 {
 	OPCODE_TABLE	*ot, *opcode[19];
 	TABLE		*instr[19];
@@ -393,11 +372,7 @@ rule_04(ofp, op, ct)
  *	Returns TRUE, if rule 5 or 6 applies and FALSE otherwise.
  */
 
-	WORD
-rule_05_06(ofp, op, ct)
-	FILE		*ofp;	/* output file ptr	*/
-	OPCODE_TABLE	*op;	/* opcode table		*/
-	TABLE 		*ct;	/* ptr to current line	*/
+WORD rule_05_06(FILE* ofp, OPCODE_TABLE* op, TABLE* ct)
 {
 	OPCODE_TABLE	*opcode[19];
 	TABLE		*instr[19];
@@ -461,11 +436,7 @@ rule_05_06(ofp, op, ct)
  *	Returns TRUE, if rule 7 applies and FALSE otherwise.
  */
 
-	WORD
-rule_07(ofp, op, ct)
-	FILE		*ofp;	/* output file ptr	*/
-	OPCODE_TABLE	*op;	/* opcode table		*/
-	TABLE 		*ct;	/* ptr to current line	*/
+WORD rule_07(FILE* ofp, OPCODE_TABLE* op, TABLE* ct)
 {
 	OPCODE_TABLE	*opcode[19];
 	TABLE		*instr[19];
@@ -522,11 +493,7 @@ rule_07(ofp, op, ct)
  *	Returns TRUE, if rule 8 applies and FALSE otherwise.
  */
 
-	WORD
-rule_08(ofp, op, ct)
-	FILE		*ofp;	/* output file ptr	*/
-	OPCODE_TABLE	*op;	/* opcode table		*/
-	TABLE 		*ct;	/* ptr to current line	*/
+WORD rule_08(FILE* ofp, OPCODE_TABLE* op, TABLE* ct)
 {
 	TABLE		*instr[16];
 	REG TABLE	*cp;
@@ -585,11 +552,7 @@ rule_08(ofp, op, ct)
  *	Returns TRUE, if rule 9 applies and FALSE otherwise.
  */
 
-	WORD
-rule_09(ofp, op, ct)
-	FILE		*ofp;	/* output file ptr	*/
-	OPCODE_TABLE	*op;	/* opcode table		*/
-	TABLE 		*ct;	/* ptr to current line	*/
+WORD rule_09(FILE* ofp, OPCODE_TABLE* op, TABLE* ct)
 {
 
 	/*
@@ -611,11 +574,7 @@ rule_09(ofp, op, ct)
  *	Returns TRUE, if rule 10 applies and FALSE otherwise.
  */
 
-	WORD
-rule_10(ofp, op, ct)
-	FILE		*ofp;	/* output file ptr	*/
-	OPCODE_TABLE	*op;	/* opcode table		*/
-	TABLE 		*ct;	/* ptr to current line	*/
+WORD rule_10(FILE* ofp, OPCODE_TABLE* op, TABLE* ct)
 {
 	/*
 	 *	check for jr or jump
@@ -690,11 +649,7 @@ WORD rule_12(FILE *ofp, OPCODE_TABLE *op, TABLE *ct) {
  *		moveq	#0, R0	; <- This will not happen!!!
  */
 
-	WORD
-warn_01(ofp, op, ct)
-	FILE		*ofp;	/* output file ptr	*/
-	OPCODE_TABLE	*op;	/* opcode table		*/
-	TABLE 		*ct;	/* ptr to current line	*/
+WORD warn_01(FILE* ofp, OPCODE_TABLE* op, TABLE* ct)
 {
 
 	OPCODE_TABLE	*x, *y, *z;

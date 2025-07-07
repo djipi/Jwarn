@@ -34,7 +34,7 @@ EXTERN WORD WarnRules(FILE *ofp, WORD *rules);
 //#ifndef _MSC_VER
 //EXTERN WORD errno;		/* for perror()			*/
 //#endif
-GLOBAL BYTE *name  = "jwarn";	/* porgram name			*/
+const char* name = "jwarn";	/* program name			*/
 MLOCAL FILE *ifp;		/* input file ptr		*/
 MLOCAL FILE *ofp;		/* output file ptr		*/
 MLOCAL BYTE lbuf[LBUFSIZE];	/* line buffer			*/
@@ -50,10 +50,10 @@ MLOCAL WORD rulesb[MAXRULES];	/* copy buffer for rules	*/
  *	function declararions
  */
 
-WORD get_cpu(WORD argc, BYTE **argv);
-WORD get_input(WORD argc, BYTE **argv);
-WORD get_rules(WORD argc, BYTE **argv);
-BYTE *get_output(WORD argc, BYTE **argv);
+WORD get_cpu(int argc, char **argv);
+WORD get_input(int  argc, char **argv);
+WORD get_rules(int argc, char **argv);
+BYTE *get_output(int argc, char **argv);
 VOID get_lines(FILE *ifp, FILE *ofp);
 
 
@@ -76,10 +76,7 @@ VOID get_lines(FILE *ifp, FILE *ofp);
  *			jwarn +r 2 7 8 tst.lst ; show only type 2 7 8
  */
 
-	int
-main(argc, argv)
-	WORD	argc;
-	BYTE	*argv[];
+int main(int argc, char* argv[])
 {
 	WORD	i;
 	WORD	input = 0;
@@ -162,10 +159,7 @@ main(argc, argv)
 /*
  *	Scan the command line for the CPU type, (Gpu is default)
  */
-	WORD
-get_cpu(argc, argv)
-	WORD	argc;
-	BYTE	*argv[];
+WORD get_cpu(int argc, char** argv)
 {
 	REG WORD	i;
 
@@ -187,10 +181,7 @@ get_cpu(argc, argv)
 /*
  *	Sacn the command line for an output file name
  */ 
-	BYTE
-*get_output(argc, argv)
-	WORD	argc;
-	BYTE	*argv[];
+BYTE *get_output(int argc, char** argv)
 {
 	REG WORD	i;
 
@@ -207,10 +198,7 @@ get_cpu(argc, argv)
 /*
  *	Get the input file names from the command line
  */
-	WORD
-get_input(argc, argv)
-	WORD	argc;
-	BYTE	*argv[];
+WORD get_input(int argc, char** argv)
 {
 	REG WORD	i;
 
@@ -227,10 +215,7 @@ get_input(argc, argv)
 /*
  *	Get the rules to be checked
  */
-	WORD
-get_rules(argc, argv)
-	WORD	argc;
-	BYTE	*argv[];
+WORD get_rules(int argc, char** argv)
 {
 	REG WORD	i, j, k;
 	WORD		rule;
@@ -314,10 +299,7 @@ get_rules(argc, argv)
  *	check for the rules...
  */
 
-	VOID
-get_lines(ifp, ofp)
-	FILE	*ifp;	/* input  file ptr			*/
-	FILE	*ofp;	/* output file ptr			*/
+VOID get_lines(FILE* ifp, FILE* ofp)
 {
 	ULONG	addr;	/* address field in the listing file 	*/
 	UWORD	code;	/* code field in the listing file    	*/

@@ -5,7 +5,7 @@
 #define EXTERN extern
 #define GLOBAL
 #define MLOCAL static
-#define REG register
+#define REG
 #define TRUE 1
 #define FALSE 0
 #define NULLPTR NULL
