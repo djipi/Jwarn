@@ -9,7 +9,7 @@
  * Added a version number, and a minor addition for the usage description, in February 2022 by J-P Mari
  * Non GASM listing format support added in February 2022 by J-P Mari
  * Error check for unknown opcode added in February 2022 by J-P Mari
- * Added the new rules 11 & 12 from JagChris in July 2025
+ * Added the new rules 11 & 12 from The Mask Group in July 2025
  * 
  */
 
