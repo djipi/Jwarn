@@ -40,6 +40,8 @@ WORD rule_08(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
 WORD rule_09(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
 WORD rule_10(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
 WORD warn_01(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
+WORD rule_11(FILE* ofp, OPCODE_TABLE* op, TABLE* ct);
+WORD rule_12(FILE* ofp, OPCODE_TABLE* op, TABLE* ct);
 
 
 /*
@@ -57,6 +59,8 @@ WFCTP	rules_fct[] = {
 	rule_08,
 	rule_09,
 	rule_10,
+	rule_11,
+	rule_12,
 	NULL
 };
 			
@@ -620,6 +624,58 @@ rule_10(ofp, op, ct)
 		fprintf(ofp, WARN_10, ct->LineNumber);
 		return TRUE;
 	}
+	return FALSE;
+}
+
+/*
+ *	Rule_11
+ *
+ *	Detects when two adjacent instructions use the same destination register.
+ *	This can lead to scoreboard stalls if the second depends on the result
+ *	of the first before it’s written back.
+ *
+ *	Returns TRUE if hazard found.
+ */
+WORD rule_11(FILE *ofp, OPCODE_TABLE *op, TABLE *ct) {
+	if (ct->next == NULL) return FALSE;
+
+	OPCODE_TABLE *x = &op[ct->opcode];
+	OPCODE_TABLE *y = &op[ct->next->opcode];
+
+	if ((x->reg2 > 0) && (y->reg2 > 0) &&
+	    (ct->reg2 != (WORD)-1) && (ct->reg2 == ct->next->reg2)) {
+
+		fprintf(ofp,
+			"[11] line %ld: interleaving hazard – reg r%d reused by next instruction (line %ld).\n",
+			ct->next->LineNumber, ct->reg2, ct->LineNumber);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+/*
+ *	Rule_12
+ *
+ *	Detects hazards where a long-latency instruction (e.g., DIV) is followed
+ *	too closely by a read from its destination register.
+ *
+ *	Returns TRUE if hazard found.
+ */
+WORD rule_12(FILE *ofp, OPCODE_TABLE *op, TABLE *ct) {
+	if (ct->next == NULL) return FALSE;
+
+	OPCODE_TABLE *x = &op[ct->opcode];
+	OPCODE_TABLE *y = &op[ct->next->opcode];
+
+	if ((x->states >= 6) && (x->reg2 > 0) && (ct->reg2 != (WORD)-1) &&
+	    ((ct->reg2 == ct->next->reg1) || (ct->reg2 == ct->next->reg2))) {
+
+		fprintf(ofp,
+			"[12] line %ld: latency hazard – r%d used too soon after high-latency op (line %ld).\n",
+			ct->next->LineNumber, ct->reg2, ct->LineNumber);
+		return TRUE;
+	}
+
 	return FALSE;
 }
 
