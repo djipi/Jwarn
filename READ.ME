@@ -52,15 +52,15 @@ Jwarn will check for the following cases:
  *	RULE 10:
  *	After a jump or jr (three ticks if executing out of internal memory).
 
- *  RULE 11:
- *  Detects cases where two consecutive instructions write to the same register
- *  (e.g., move r5, ... followed by another move r5, ...).
- *  This can cause a stall due to scoreboard behavior on the Jaguar GPU/DSP.
+ *	RULE 11:
+ *	Detects cases where two consecutive instructions write to the same register
+ *	(e.g., move r5, ... followed by another move r5, ...).
+ *	This can cause a stall due to scoreboard behavior on the Jaguar GPU/DSP.
 
- *  RULE 12:
- *  Warns when a high-latency instruction (such as DIV) is immediately followed
- *  by an instruction that reads from its result register.
- *  These dependencies can incur pipeline stalls if not delayed appropriately.
+ *	RULE 12:
+ *	Warns when a high-latency instruction (such as DIV) is immediately followed
+ *	by an instruction that reads from its result register.
+ *	These dependencies can incur pipeline stalls if not delayed appropriately.
 
  #	WARNING 1:
  #

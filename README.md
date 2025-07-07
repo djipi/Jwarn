@@ -6,6 +6,17 @@ Jwarn is a tool which allows to find the places in code where the Jaguar GPU or 
 Jwarn takes a GASM, Rmac or Vasm listing file as its input and writes the warnings to standard output.<br>
 Please review the READ.ME document to know more about his usage and capabilities.
 
-## Version
+## Platforms
+Cygwin
+Linux
+MinGW
+MSYS2/MinGW
+Windows 10 32/64 bits
+
+## Projects
+Visual Studio 2022
+Makefile
+
+## Disclaimer
 The original version was developed for the Atari 16/32 bits computers.<br>
 The tool has been adapted for Windows & Linux.
