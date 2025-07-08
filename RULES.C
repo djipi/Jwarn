@@ -42,6 +42,7 @@ WORD rule_10(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
 WORD warn_01(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
 WORD rule_11(FILE* ofp, OPCODE_TABLE* op, TABLE* ct);
 WORD rule_12(FILE* ofp, OPCODE_TABLE* op, TABLE* ct);
+WORD rule_13(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
 
 
 /*
@@ -61,6 +62,7 @@ WFCTP rules_fct[] = {
 	rule_10,
 	rule_11,
 	rule_12,
+	rule_13,
 	NULL
 };
 			
@@ -637,6 +639,42 @@ WORD rule_12(FILE *ofp, OPCODE_TABLE *op, TABLE *ct) {
 
 	return FALSE;
 }
+
+/*
+ *	Rule_13
+ *
+ *	Detects when two instructions write to the same register
+ *	with overlapping writeback timing, which may cause
+ *	scoreboard corruption or partial writes.
+ *
+ *	Returns TRUE if hazard is found.
+ */
+WORD rule_13(FILE *ofp, OPCODE_TABLE *op, TABLE *ct)
+{
+	TABLE *next;
+	OPCODE_TABLE *x, *y;
+
+	if (ct->next == NULL)
+		return FALSE;
+
+	next = ct->next;
+	x = &op[ct->opcode];
+	y = &op[next->opcode];
+
+	if (x->WriteFlag && y->WriteFlag &&
+	    (ct->reg2 != (WORD)-1) &&
+	    (ct->reg2 == next->reg2) &&
+	    (x->states >= 3 || y->states >= 3))
+	{
+		fprintf(ofp,
+		"[13] line %ld: write/write scoreboard hazard – r%d overwritten before writeback from line %ld completed.\n",
+		next->LineNumber, ct->reg2, ct->LineNumber);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 
 
 /*	

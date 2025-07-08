@@ -62,6 +62,10 @@ Jwarn will check for the following cases:
  *	by an instruction that reads from its result register.
  *	These dependencies can incur pipeline stalls if not delayed appropriately.
 
+ *	RULE 13:
+ *	Detects when two instructions write to the same register with overlapping
+ *	writeback timing, which may cause scoreboard corruption or partial writes.
+
  #	WARNING 1:
  #
  #	Situations like the following will cause problems:

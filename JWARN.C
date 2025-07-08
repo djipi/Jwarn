@@ -9,7 +9,7 @@
  * Added a version number, and a minor addition for the usage description, in February 2022 by J-P Mari
  * Non GASM listing format support added in February 2022 by J-P Mari
  * Error check for unknown opcode added in February 2022 by J-P Mari
- * Added the new rules 11 & 12 from The Mask Group in July 2025
+ * Added the new rules 11, 12 & 13 from The Mask Group in July 2025
  * 
  */
 
@@ -22,7 +22,7 @@
 #include "jwarn.h"
 #include "table.h"
 
-#define VERSION	"1.3"
+#define VERSION	"1.3a"
 
 EXTERN OPCODE_TABLE *OpCodeTable;     /* from table.c		*/ 
 EXTERN OPCODE_TABLE DSPOpCodeTable[]; /* from table.c		*/ 
@@ -74,6 +74,7 @@ VOID get_lines(FILE *ifp, FILE *ofp);
  *			jwarn -CDsp tst.lst
  *			jwarn -r 1 4 6 10 tst.lst ; all warnings but 1,4,6,10
  *			jwarn +r 2 7 8 tst.lst ; show only type 2 7 8
+ *			jwarn +r 13 tst.lst ; show write/write scoreboard collision warnings
  */
 
 int main(int argc, char* argv[])
@@ -85,7 +86,7 @@ int main(int argc, char* argv[])
 
 	if ((argc < 2) || (strcmp(argv[1], "help") == 0)) {
 		fprintf(stderr, "\njwarn %s - Atari Jaguar Wait State Warning Generator\n", VERSION);
-		fprintf(stderr, "usage: jwarn [-C{Gpu|Dsp}] [{+|-}r {1..12} {1..12}..] [-ooutput] [input files]\n\n");
+		fprintf(stderr, "usage: jwarn [-C{Gpu|Dsp}] [{+|-}r {1..13} {1..13}..] [-ooutput] [input files]\n\n");
 		fprintf(stderr, "If no input and/or output file is specified stdin / stdout are used.\n");
 		fprintf(stderr, "GASM, Rmac or Vasm listing format is required as input.\n\n");
 		exit(1);
@@ -407,4 +408,5 @@ VOID get_lines(FILE* ifp, FILE* ofp)
 		FreeCodeTable();
 	}
 }
+
 
