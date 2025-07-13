@@ -23,7 +23,7 @@
 #include "jwarn.h"
 #include "table.h"
 
-#define VERSION	"1.3b"
+#define VERSION	"1.3c"
 
 EXTERN OPCODE_TABLE *OpCodeTable;     /* from table.c		*/ 
 EXTERN OPCODE_TABLE DSPOpCodeTable[]; /* from table.c		*/ 
@@ -325,7 +325,7 @@ VOID get_lines(FILE* ifp, FILE* ofp)
 		if (!n)
 		{
 			/* look for the .gpu or .dsp to try for non GASM format (such as Rmac, or Vasm)*/
-			if (strstr(lbuf, ".gpu") || strstr(lbuf, ".dsp"))
+			if (strstr(lbuf, ".gpu") || strstr(lbuf, ".GPU") || strstr(lbuf, ".dsp") || strstr(lbuf, ".DSP"))
 			{
 				readrisc = 1;
 			}
