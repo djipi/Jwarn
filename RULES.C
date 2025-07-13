@@ -98,7 +98,7 @@ WORD WarnAll(FILE* ofp)
  *	Just go through the specified rules
  */
 
-WORD WarnRules(FILE* ofp, WORD rules[])
+WORD WarnRules(FILE* ofp, WORD* rules)
 {
 	REG TABLE	*ct;
 	WORD		state = FALSE;	
