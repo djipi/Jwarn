@@ -11,6 +11,7 @@
  * Error check for unknown opcode added in February 2022 by J-P Mari
  * Added the new rules 11, 12 & 13 in July 2025 by The Mask Group
  * Fix usage for the rules 11, 12 & 13 in July 2025 by J-P Mari
+ * Improve GPU/DSP extension detection in July 2025 by J-P Mari
  * 
  */
 
