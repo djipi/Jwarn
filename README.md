@@ -15,6 +15,7 @@ Windows 10 32/64 bits
 
 ## Projects
 Visual Studio 2022
+CMake
 Makefile
 
 ## Disclaimer

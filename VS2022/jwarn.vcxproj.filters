@@ -41,5 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\READ.ME" />
+    <None Include="..\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\CMakeLists.txt" />
   </ItemGroup>
 </Project>

@@ -8,3 +8,4 @@ VS2022/*.vcxproj.user
 *.bak
 jwarn.exe
 jwarn
+[Bb]uild/
