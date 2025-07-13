@@ -7,16 +7,16 @@ Jwarn takes a GASM, Rmac or Vasm listing file as its input and writes the warnin
 Please review the READ.ME document to know more about his usage and capabilities.
 
 ## Platforms
-Cygwin
-Linux
-MinGW
-MSYS2/MinGW
-Windows 10 32/64 bits
+* Cygwin
+* Linux
+* MinGW
+* MSYS2/MinGW
+* Windows 10 32/64 bits
 
 ## Projects
-Visual Studio 2022
-CMake
-Makefile
+* CMake
+* Makefile
+* Visual Studio 2022
 
 ## Disclaimer
 The original version was developed for the Atari 16/32 bits computers.<br>
