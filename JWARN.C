@@ -9,7 +9,8 @@
  * Added a version number, and a minor addition for the usage description, in February 2022 by J-P Mari
  * Non GASM listing format support added in February 2022 by J-P Mari
  * Error check for unknown opcode added in February 2022 by J-P Mari
- * Added the new rules 11, 12 & 13 from The Mask Group in July 2025
+ * Added the new rules 11, 12 & 13 in July 2025 by The Mask Group
+ * Fix usage for the rules 11, 12 & 13 in July 2025 by J-P Mari
  * 
  */
 
@@ -22,7 +23,7 @@
 #include "jwarn.h"
 #include "table.h"
 
-#define VERSION	"1.3a"
+#define VERSION	"1.3b"
 
 EXTERN OPCODE_TABLE *OpCodeTable;     /* from table.c		*/ 
 EXTERN OPCODE_TABLE DSPOpCodeTable[]; /* from table.c		*/ 
@@ -64,7 +65,7 @@ VOID get_lines(FILE *ifp, FILE *ofp);
  *	of warnings where wait states are going to occure.
  *
  * 	Usage: 
- * jwarn [-C{Gpu|Dsp}] [{+|-}r {1..10} {1..10} ...] [-ooutput] [input files]
+ * jwarn [-C{Gpu|Dsp}] [{+|-}r {1..13} {1..13} ...] [-ooutput] [input files]
  *
  *	If no input  and/or output file is specified stdin/stdout are used.
  *
@@ -241,7 +242,7 @@ WORD get_rules(int argc, char** argv)
 					  	if (!(isdigit(argv[i][0])))
 							break;
 						rule = (WORD)atoi(&argv[i][0]);
-						if ((rule < 1) || (rule > 10)) {
+						if ((rule < 1) || (rule > NR_RULES)) {
 							err = 2;
 							break;
 						}
@@ -265,7 +266,7 @@ WORD get_rules(int argc, char** argv)
 		fprintf(stderr, "%s: illegal option.\n", name);
 		break;
 	case 2:
-		fprintf(stderr, "%s: illegal rule (rules: 1 to 10).\n", name);
+		fprintf(stderr, "%s: illegal rule (rules: 1 to %i).\n", name, NR_RULES);
 		break;
 	case 3:
 		fprintf(stderr, "%s: too many rules.\n", name);
@@ -295,6 +296,7 @@ WORD get_rules(int argc, char** argv)
 	return (i - 1);
 }
 
+
 /*
  *	Main function tp go through the lines of the input files and
  *	check for the rules...
@@ -319,6 +321,7 @@ VOID get_lines(FILE* ifp, FILE* ofp)
 		/* get address and code field from current line in GASM format..*/
 		addr = code = 0;
 		n = sscanf(lbuf, "@'%lX %hX\n", &addr, &code);
+ 
 		if (!n)
 		{
 			/* look for the .gpu or .dsp to try for non GASM format (such as Rmac, or Vasm)*/

@@ -14,5 +14,8 @@
 #define WARN_08 "[08] line %ld: instr. might have to wait for previous memory transfer. (line %ld).\n"
 #define WARN_09 "[09] line %ld: store instr. with index cause one wait state.\n"
 #define WARN_10 "[10] line %ld: jump or jr (three ticks if internal memory).\n"
+//#define WARN_11 "[11] line %ld: interleaving hazard – reg r%d reused by next instruction (line %ld).\n"
+//#define WARN_12 "[12] line %ld: latency hazard – r%d used too soon after high-latency op (line %ld).\n"
+//#define WARN_13 "[13] line %ld: write/write scoreboard hazard – r%d overwritten before writeback from line %ld completed.\n"
 
 #define CWARN_01 "WARNING: line %ld: dest reg will have result of line %ld because of jump @%ld.\n"
