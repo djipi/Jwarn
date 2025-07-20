@@ -10,8 +10,11 @@
 /*
  *	Nr of currently used rules & max number of rules on command line
  */
-
+#ifdef EXPERIMENTAL
 #define NR_RULES	13
+#else
+#define NR_RULES	10
+#endif
 #define MAXRULES	64
 
 /*

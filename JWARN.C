@@ -55,7 +55,7 @@ MLOCAL WORD rulesb[MAXRULES];	/* copy buffer for rules	*/
 WORD get_cpu(int argc, char **argv);
 WORD get_input(int  argc, char **argv);
 WORD get_rules(int argc, char **argv);
-BYTE *get_output(int argc, char **argv);
+char* get_output(int argc, char **argv);
 VOID get_lines(FILE *ifp, FILE *ofp);
 
 
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 
 	if ((argc < 2) || (strcmp(argv[1], "help") == 0)) {
 		fprintf(stderr, "\njwarn %s - Atari Jaguar Wait State Warning Generator\n", VERSION);
-		fprintf(stderr, "usage: jwarn [-C{Gpu|Dsp}] [{+|-}r {1..13} {1..13}..] [-ooutput] [input files]\n\n");
+		fprintf(stderr, "usage: jwarn [-C{Gpu|Dsp}] [{+|-}r {1..%i} {1..%i}..] [-ooutput] [input files]\n\n", NR_RULES, NR_RULES);
 		fprintf(stderr, "If no input and/or output file is specified stdin / stdout are used.\n");
 		fprintf(stderr, "GASM, Rmac or Vasm listing format is required as input.\n\n");
 		exit(1);
@@ -182,11 +182,11 @@ WORD get_cpu(int argc, char** argv)
 }
 
 /*
- *	Sacn the command line for an output file name
+ *	Scan the command line for an output file name
  */ 
-BYTE *get_output(int argc, char** argv)
+char* get_output(int argc, char** argv)
 {
-	REG WORD	i;
+	int i;
 
 	if (argc > 1) {
 		for (i = 1; i < argc; i++) {

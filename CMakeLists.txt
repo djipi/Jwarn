@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(jwarn CXX)
 
-# Add verbose build option
+# Add build options
 option(VERBOSE_BUILD "Enable verbose build output" OFF)
+option(TIME_BUILD "Show build time for each target" OFF)
+option(EXPERIMENTAL "Enable experimental features" OFF)
 
 # Set Release as default build type if not specified
 if(NOT CMAKE_BUILD_TYPE)
@@ -22,7 +24,6 @@ if(VERBOSE_BUILD)
 endif()
 
 # Enable build timing
-option(TIME_BUILD "Show build time for each target" OFF)
 if(TIME_BUILD)
     # Create timing wrapper script
     file(WRITE "${CMAKE_BINARY_DIR}/time_wrapper.cmake" "
@@ -49,6 +50,7 @@ message(STATUS "C++ Standard: C++${CMAKE_CXX_STANDARD}")
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "Build timing: ${TIME_BUILD}")
 message(STATUS "Verbose build: ${VERBOSE_BUILD}")
+message(STATUS "Experimental features: ${EXPERIMENTAL}")
 message(STATUS "========================================")
 
 # Display available options
@@ -62,6 +64,9 @@ message(STATUS "  Usage: cmake -DCMAKE_BUILD_TYPE=Debug|Release|MinSizeRel|RelWi
 message(STATUS "TIME_BUILD: ${TIME_BUILD}")
 message(STATUS "  Description: Show build time for each compilation step")
 message(STATUS "  Usage: cmake -DTIME_BUILD=ON|OFF")
+message(STATUS "EXPERIMENTAL: ${EXPERIMENTAL}")
+message(STATUS "  Description: Enable experimental features")
+message(STATUS "  Usage: cmake -DEXPERIMENTAL=ON|OFF")
 message(STATUS "========================================")
 
 # Source files
@@ -80,6 +85,12 @@ set(HEADERS
 
 # Create executable
 add_executable(jwarn ${SOURCES} ${HEADERS})
+
+# Add compiler definitions
+if(EXPERIMENTAL)
+    target_compile_definitions(jwarn PRIVATE EXPERIMENTAL)
+    message(STATUS "Experimental features enabled")
+endif()
 
 # Add Visual Studio specific flags
 if(MSVC)

@@ -40,9 +40,11 @@ WORD rule_08(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
 WORD rule_09(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
 WORD rule_10(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
 WORD warn_01(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
+#ifdef EXPERIMENTAL
 WORD rule_11(FILE* ofp, OPCODE_TABLE* op, TABLE* ct);
 WORD rule_12(FILE* ofp, OPCODE_TABLE* op, TABLE* ct);
 WORD rule_13(FILE *ofp, OPCODE_TABLE *op, TABLE *ct);
+#endif
 
 
 /*
@@ -60,9 +62,11 @@ WFCTP rules_fct[] = {
 	rule_08,
 	rule_09,
 	rule_10,
+#ifdef EXPERIMENTAL
 	rule_11,
 	rule_12,
 	rule_13,
+#endif
 	NULL
 };
 			
@@ -89,6 +93,11 @@ WORD WarnAll(FILE* ofp)
  		state += rule_08(ofp, OpCodeTable, ct);
  		state += rule_09(ofp, OpCodeTable, ct);
  		state += rule_10(ofp, OpCodeTable, ct);
+#ifdef EXPERIMENTAL
+		state += rule_11(ofp, OpCodeTable, ct);
+		state += rule_12(ofp, OpCodeTable, ct);
+		state += rule_13(ofp, OpCodeTable, ct);
+#endif
  		state += warn_01(ofp, OpCodeTable, ct);
 	}
 	return state;
@@ -588,6 +597,7 @@ WORD rule_10(FILE* ofp, OPCODE_TABLE* op, TABLE* ct)
 	return FALSE;
 }
 
+#ifdef EXPERIMENTAL
 /*
  *	Rule_11
  *
@@ -674,7 +684,7 @@ WORD rule_13(FILE *ofp, OPCODE_TABLE *op, TABLE *ct)
 
 	return FALSE;
 }
-
+#endif
 
 
 /*	
