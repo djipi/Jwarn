@@ -1,3 +1,4 @@
+[Bb]uild/
 samples/
 Archives/
 .vs/
@@ -7,3 +8,4 @@ VS2022/*.vcxproj.user
 *.o
 jwarn.exe
 jwarn
+*.bak
